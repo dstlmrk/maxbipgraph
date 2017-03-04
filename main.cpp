@@ -27,6 +27,8 @@ using namespace std;
 
 int main() {
     cout << "Hello!" << endl;
-    CGraph graph = CGraph::load_graph("./data.txt");
+    CGraph graph = CGraph::load_graph("/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/data.txt");
+
+    cout << graph.vertices_cnt << endl;
     return 0;
 }

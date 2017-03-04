@@ -8,8 +8,12 @@
 
 class CGraph {
 public:
-    CGraph();
+    CGraph(int vertices_cnt, bool** adjacency_matrix);
+    ~CGraph();
     static CGraph load_graph(const char * path);
+
+    int vertices_cnt;
+    bool** adjacency_matrix;
 };
 
 
