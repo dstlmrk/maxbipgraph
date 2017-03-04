@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/CGraph.cpp
+string
+-
+iostream
+-
+fstream
+-
+CGraph.h
+/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/CGraph.h
+
+/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/CGraph.h
+
+/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/main.cpp
+iostream
+-
+CGraph.h
+/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/CGraph.h
+
