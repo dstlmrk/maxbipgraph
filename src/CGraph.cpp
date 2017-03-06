@@ -7,8 +7,6 @@
 
 using namespace std;
 
-// TODO: pokud vim, kolik mam na zacatku hran, tak pak to nemusim pocitat pokazde, kdyz nejakou odeberu
-// TODO: jen si to musim nekde pamatovat
 
 CGraph::CGraph(int vertices_cnt, int edges_cnt, bool ** adjacency_matrix):
         vertices_cnt(vertices_cnt), edges_cnt(edges_cnt), adjacency_matrix(adjacency_matrix) {}
@@ -18,6 +16,7 @@ CGraph::~CGraph() {
         delete[] adjacency_matrix[i];
     }
     delete[] adjacency_matrix;
+    delete[] vertices_colors;
 }
 
 CGraph * CGraph::load_graph(const char * path) {
@@ -65,111 +64,6 @@ CGraph * CGraph::load_graph(const char * path) {
             adjacency_matrix
     );
 }
-
-
-
-//
-//
-//CResult * CGraph::evaluate(vector<vector<bool>> & adjacency_matrix) {
-//
-//    int edges_cnt = get_edges_cnt(vertices_cnt, adjacency_matrix);
-//
-//    // array with vertices and their colors
-//    int vertices_colors[vertices_cnt];
-//    for (int i = 0; i < vertices_cnt; ++i) {
-//        // all vertex aren't colored
-//        vertices_colors[i] = -1;
-//    }
-//
-//    // check all components
-//    for (int i = 0; i < vertices_cnt; ++i) {
-//        if (vertices_colors[i] == -1) {
-//            // if vertex is still uncolored I check it and its all neighbours
-//            if (!component_is_bigraph(adjacency_matrix, vertices_colors, i)) {
-//                return new CResult(false, vertices_cnt, edges_cnt, vertices_colors);
-//            }
-//        }
-//    }
-//
-//    return new CResult(true, vertices_cnt, edges_cnt, vertices_colors);
-//}
-//
-//CResult CGraph::get_max_bigraph() {
-//
-//    CResult * graph = this->evaluate(this->adjacency_matrix);
-//    if (graph->is_bigraph) {
-//        cout << "Init graph is bigraph." << endl;
-//        return *graph;
-//    }
-//
-//    cout << "total edges: " << graph->edges_cnt << endl;
-//
-//    stack <vector<vector<bool>>> s;
-//    s.push(this->adjacency_matrix);
-//
-//    int k = 0;
-//    while (!s.empty()) {
-//        vector<vector<bool>> adjacency_matrix;
-//        adjacency_matrix = s.top();
-//        s.pop();
-//
-////        if (best_result != NULL && get_edges_cnt(adjacency_matrix) <= best_result->edges_cnt) {
-////            // branch and bound: here is not necessary take away next edges
-////            continue;
-////        }
-//
-////         TODO: neco je divne, protoze i s touto podminkou to hleda neumerne dlouho
-////        if (best_result != NULL && get_edges_cnt(adjacency_matrix) <= 18) {
-////            // branch and bound: here is not necessary take away next edges
-////            continue;
-////        }
-//
-//
-//        // debug print
-//        for (int i = 0; i < vertices_cnt; ++i) {
-//            for (int j = 0; j < vertices_cnt; ++j) {
-//                cout << adjacency_matrix[i][j];
-//            } //cout << endl;
-//        } cout << endl;
-//
-//
-//        graph = evaluate(adjacency_matrix);
-//
-////        cout << graph->edges_cnt << " " << graph->is_bigraph << endl;
-////        cout << "-------------" << endl;
-//
-//
-//        if (graph->is_bigraph) {
-//            if (best_result == NULL) {
-//                // first result
-//                best_result = graph;
-//            } else if (graph->edges_cnt > best_result->edges_cnt) {
-//                // better result
-//                best_result = graph;
-//                cout << best_result->edges_cnt << endl;
-//            }
-//        }
-//
-//        if (graph->edges_cnt < vertices_cnt - 1) {
-//            // branch and bound: here is not necessary take away next edges
-//            continue;
-//        }
-//
-//        // loop over upper triangular matrix where is every edge only once
-//        int diagonal_index = 0;
-//            for (int j = diagonal_index + 1; j < vertices_cnt; ++j) {
-//        for (int i = 0; i < vertices_cnt; ++i, ++diagonal_index) {
-//                if (adjacency_matrix[i][j]) {
-//                    vector<vector<bool>> constricted_adjacency_matrix = adjacency_matrix;
-//                    constricted_adjacency_matrix[i][j] = false;
-//                    constricted_adjacency_matrix[j][i] = false;
-//                    s.push(constricted_adjacency_matrix);
-//                }
-//            }
-//        }
-//    }
-//    return *best_result;
-//}
 
 int CGraph::get_edges_cnt(int vertices_cnt, bool ** adjacency_matrix) {
     // get count of edges
@@ -243,4 +137,86 @@ bool CGraph::component_is_bigraph(int vertex_index) {
     }
 
     return true;
+}
+
+CGraph *CGraph::get_max_bigraph(CGraph *init_graph) {
+
+    if (init_graph->is_bipartite_graph()) {
+        return init_graph;
+    }
+
+    // stack of pointers
+    stack <CGraph*> s;
+    s.push(init_graph);
+
+    CGraph * best_graph = NULL;
+
+    while (!s.empty()) {
+        CGraph * graph = s.top();
+        s.pop();
+
+        if (best_graph != NULL && best_graph->edges_cnt >= graph->edges_cnt) {
+            // branch and bound: here is not necessary take away next edges
+            continue;
+        }
+
+//        if (graph->edges_cnt < 30) {
+//            // branch and bound: here is not necessary take away next edges
+//            continue;
+//        }
+
+        // debug print
+//        for (int i = 0; i < graph->vertices_cnt; ++i) {
+//            for (int j = 0; j < graph->vertices_cnt; ++j) {
+//                cout << graph->adjacency_matrix[i][j];
+//            }
+//        } cout << endl;
+
+        // save better result
+        if (graph->is_bipartite_graph()) {
+            if (best_graph == NULL) {
+                // first result
+                best_graph = graph;
+            } else if (graph->edges_cnt > best_graph->edges_cnt) {
+                // better result
+                best_graph = graph;
+                cout << "BETTER RESULT: " << best_graph->edges_cnt << endl;
+            }
+            continue;
+        }
+
+//        cout << graph->edges_cnt << " " << graph->is_bigraph << endl;
+
+        // loop over upper triangular matrix where is every edge only once
+        int diagonal_index = 0;
+        for(int i = 0; i < graph->vertices_cnt; ++i, ++diagonal_index) {
+            for (int j = diagonal_index + 1; j < graph->vertices_cnt; ++j) {
+                if (graph->adjacency_matrix[i][j]) {
+                    // new adjacency matrix
+                    bool ** new_adjacency_matrix = new bool*[graph->vertices_cnt];
+                    for (int k = 0; k < graph->vertices_cnt; k++) {
+                        new_adjacency_matrix[k] = new bool[graph->vertices_cnt];
+                        for (int l = 0; l < graph->vertices_cnt; l++) {
+                            new_adjacency_matrix[k][l] = graph->adjacency_matrix[k][l];
+                        }
+                    }
+
+                    new_adjacency_matrix[i][j] = false;
+                    new_adjacency_matrix[j][i] = false;
+
+                    CGraph * subgraph = new CGraph(
+                            graph->vertices_cnt,
+                            graph->edges_cnt - 1,
+                            new_adjacency_matrix
+                    );
+
+                    s.push(subgraph);
+                }
+            }
+        }
+
+        delete graph;
+    }
+
+    return best_graph;
 }

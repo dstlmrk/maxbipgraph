@@ -1,9 +1,7 @@
 #include <iostream>
 #include "src/CGraph.h"
-#include "src/CMaxBigraph.h"
 
 using namespace std;
-
 
 int main(int argc, char* argv[]) {
 
@@ -16,12 +14,15 @@ int main(int argc, char* argv[]) {
     }
 
     // load init graph
-    CGraph * graph = CGraph::load_graph(argv[1]);
+    CGraph * init_graph = CGraph::load_graph(argv[1]);
 
     // get max bigraph from init graph
-    CMaxBigraph max_bigraph_alg = CMaxBigraph();
-    CGraph * max_bigraph = max_bigraph_alg.evaluate(graph);
+    CGraph * max_bigraph = CGraph::get_max_bigraph(init_graph);
 
-    cout << "RESULT: " << *max_bigraph << endl;
+    cout << "RESULT: " << * max_bigraph << endl;
+
+    // init_graph is deleted by get_max_bigraph()
+    delete max_bigraph;
+
     return 0;
 }
