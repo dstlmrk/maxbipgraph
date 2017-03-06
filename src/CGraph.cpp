@@ -9,7 +9,9 @@ using namespace std;
 
 
 CGraph::CGraph(int vertices_cnt, int edges_cnt, bool ** adjacency_matrix):
-        vertices_cnt(vertices_cnt), edges_cnt(edges_cnt), adjacency_matrix(adjacency_matrix) {}
+        vertices_cnt(vertices_cnt), edges_cnt(edges_cnt), adjacency_matrix(adjacency_matrix) {
+    vertices_colors = new short int[vertices_cnt];
+}
 
 CGraph::~CGraph() {
     for(int i = 0; i < vertices_cnt; ++i) {
@@ -90,7 +92,6 @@ ostream & operator << (ostream & os, const CGraph & graph) {
 bool CGraph::is_bipartite_graph() {
 
     // array with vertices and their colors
-    vertices_colors = new short int[vertices_cnt];
     for (int i = 0; i < vertices_cnt; ++i) {
         // all vertex set uncolored
         vertices_colors[i] = -1;
@@ -139,7 +140,7 @@ bool CGraph::component_is_bigraph(int vertex_index) {
     return true;
 }
 
-CGraph *CGraph::get_max_bigraph(CGraph *init_graph) {
+CGraph * CGraph::get_max_bigraph(CGraph *init_graph) {
 
     if (init_graph->is_bipartite_graph()) {
         return init_graph;
@@ -151,26 +152,26 @@ CGraph *CGraph::get_max_bigraph(CGraph *init_graph) {
 
     CGraph * best_graph = NULL;
 
+    // debug print into file
+    // freopen("output.txt","w",stdout);
+
     while (!s.empty()) {
         CGraph * graph = s.top();
         s.pop();
 
+
         if (best_graph != NULL && best_graph->edges_cnt >= graph->edges_cnt) {
             // branch and bound: here is not necessary take away next edges
+            delete graph;
             continue;
         }
 
-//        if (graph->edges_cnt < 30) {
-//            // branch and bound: here is not necessary take away next edges
-//            continue;
-//        }
-
         // debug print
-//        for (int i = 0; i < graph->vertices_cnt; ++i) {
-//            for (int j = 0; j < graph->vertices_cnt; ++j) {
-//                cout << graph->adjacency_matrix[i][j];
-//            }
-//        } cout << endl;
+        for (int i = 0; i < graph->vertices_cnt; ++i) {
+            for (int j = 0; j < graph->vertices_cnt; ++j) {
+                cout << graph->adjacency_matrix[i][j];
+            }
+        } cout << endl;
 
         // save better result
         if (graph->is_bipartite_graph()) {
@@ -185,13 +186,13 @@ CGraph *CGraph::get_max_bigraph(CGraph *init_graph) {
             continue;
         }
 
-//        cout << graph->edges_cnt << " " << graph->is_bigraph << endl;
-
         // loop over upper triangular matrix where is every edge only once
         int diagonal_index = 0;
         for(int i = 0; i < graph->vertices_cnt; ++i, ++diagonal_index) {
             for (int j = diagonal_index + 1; j < graph->vertices_cnt; ++j) {
+                cout << graph->adjacency_matrix[i][j] << endl;
                 if (graph->adjacency_matrix[i][j]) {
+                    cout << "add" << endl;
                     // new adjacency matrix
                     bool ** new_adjacency_matrix = new bool*[graph->vertices_cnt];
                     for (int k = 0; k < graph->vertices_cnt; k++) {
@@ -203,7 +204,6 @@ CGraph *CGraph::get_max_bigraph(CGraph *init_graph) {
 
                     new_adjacency_matrix[i][j] = false;
                     new_adjacency_matrix[j][i] = false;
-
                     CGraph * subgraph = new CGraph(
                             graph->vertices_cnt,
                             graph->edges_cnt - 1,
@@ -214,7 +214,6 @@ CGraph *CGraph::get_max_bigraph(CGraph *init_graph) {
                 }
             }
         }
-
         delete graph;
     }
 

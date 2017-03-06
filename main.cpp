@@ -10,7 +10,8 @@ int main(int argc, char* argv[]) {
         // std::cerr << "Usage: " << argv[0] << " file_path" << std::endl;
         // return 1;
 //        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/generator/graf.out";
-        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/data.txt";
+        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/data/graph4.txt";
+//        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/data/graph10_5.txt";
     }
 
     // load init graph
