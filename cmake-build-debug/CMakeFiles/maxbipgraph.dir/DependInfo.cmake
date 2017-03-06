@@ -4,8 +4,9 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/CGraph.cpp" "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/cmake-build-debug/CMakeFiles/maxbipgraph.dir/CGraph.cpp.o"
   "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/main.cpp" "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/cmake-build-debug/CMakeFiles/maxbipgraph.dir/main.cpp.o"
+  "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/src/CGraph.cpp" "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/cmake-build-debug/CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o"
+  "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/src/CResult.cpp" "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/cmake-build-debug/CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

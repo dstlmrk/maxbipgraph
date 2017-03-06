@@ -123,33 +123,6 @@ maxbipgraph/fast:
 	$(MAKE) -f CMakeFiles/maxbipgraph.dir/build.make CMakeFiles/maxbipgraph.dir/build
 .PHONY : maxbipgraph/fast
 
-CGraph.o: CGraph.cpp.o
-
-.PHONY : CGraph.o
-
-# target to build an object file
-CGraph.cpp.o:
-	$(MAKE) -f CMakeFiles/maxbipgraph.dir/build.make CMakeFiles/maxbipgraph.dir/CGraph.cpp.o
-.PHONY : CGraph.cpp.o
-
-CGraph.i: CGraph.cpp.i
-
-.PHONY : CGraph.i
-
-# target to preprocess a source file
-CGraph.cpp.i:
-	$(MAKE) -f CMakeFiles/maxbipgraph.dir/build.make CMakeFiles/maxbipgraph.dir/CGraph.cpp.i
-.PHONY : CGraph.cpp.i
-
-CGraph.s: CGraph.cpp.s
-
-.PHONY : CGraph.s
-
-# target to generate assembly for a file
-CGraph.cpp.s:
-	$(MAKE) -f CMakeFiles/maxbipgraph.dir/build.make CMakeFiles/maxbipgraph.dir/CGraph.cpp.s
-.PHONY : CGraph.cpp.s
-
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -177,6 +150,60 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles/maxbipgraph.dir/build.make CMakeFiles/maxbipgraph.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+src/CGraph.o: src/CGraph.cpp.o
+
+.PHONY : src/CGraph.o
+
+# target to build an object file
+src/CGraph.cpp.o:
+	$(MAKE) -f CMakeFiles/maxbipgraph.dir/build.make CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o
+.PHONY : src/CGraph.cpp.o
+
+src/CGraph.i: src/CGraph.cpp.i
+
+.PHONY : src/CGraph.i
+
+# target to preprocess a source file
+src/CGraph.cpp.i:
+	$(MAKE) -f CMakeFiles/maxbipgraph.dir/build.make CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.i
+.PHONY : src/CGraph.cpp.i
+
+src/CGraph.s: src/CGraph.cpp.s
+
+.PHONY : src/CGraph.s
+
+# target to generate assembly for a file
+src/CGraph.cpp.s:
+	$(MAKE) -f CMakeFiles/maxbipgraph.dir/build.make CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.s
+.PHONY : src/CGraph.cpp.s
+
+src/CResult.o: src/CResult.cpp.o
+
+.PHONY : src/CResult.o
+
+# target to build an object file
+src/CResult.cpp.o:
+	$(MAKE) -f CMakeFiles/maxbipgraph.dir/build.make CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o
+.PHONY : src/CResult.cpp.o
+
+src/CResult.i: src/CResult.cpp.i
+
+.PHONY : src/CResult.i
+
+# target to preprocess a source file
+src/CResult.cpp.i:
+	$(MAKE) -f CMakeFiles/maxbipgraph.dir/build.make CMakeFiles/maxbipgraph.dir/src/CResult.cpp.i
+.PHONY : src/CResult.cpp.i
+
+src/CResult.s: src/CResult.cpp.s
+
+.PHONY : src/CResult.s
+
+# target to generate assembly for a file
+src/CResult.cpp.s:
+	$(MAKE) -f CMakeFiles/maxbipgraph.dir/build.make CMakeFiles/maxbipgraph.dir/src/CResult.cpp.s
+.PHONY : src/CResult.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -186,12 +213,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... maxbipgraph"
-	@echo "... CGraph.o"
-	@echo "... CGraph.i"
-	@echo "... CGraph.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... src/CGraph.o"
+	@echo "... src/CGraph.i"
+	@echo "... src/CGraph.s"
+	@echo "... src/CResult.o"
+	@echo "... src/CResult.i"
+	@echo "... src/CResult.s"
 .PHONY : help
 
 

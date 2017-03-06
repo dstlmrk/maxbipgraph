@@ -1,1 +1,1 @@
-/usr/bin/c++   -g   CMakeFiles/maxbipgraph.dir/main.cpp.o CMakeFiles/maxbipgraph.dir/CGraph.cpp.o  -o maxbipgraph 
+/usr/bin/c++   -g   CMakeFiles/maxbipgraph.dir/main.cpp.o CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o  -o maxbipgraph 

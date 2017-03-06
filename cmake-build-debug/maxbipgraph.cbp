@@ -84,13 +84,19 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/CGraph.cpp">
-			<Option target="maxbipgraph"/>
-		</Unit>
-		<Unit filename="/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/CGraph.h">
-			<Option target="maxbipgraph"/>
-		</Unit>
 		<Unit filename="/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/main.cpp">
+			<Option target="maxbipgraph"/>
+		</Unit>
+		<Unit filename="/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/src/CGraph.cpp">
+			<Option target="maxbipgraph"/>
+		</Unit>
+		<Unit filename="/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/src/CGraph.h">
+			<Option target="maxbipgraph"/>
+		</Unit>
+		<Unit filename="/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/src/CResult.cpp">
+			<Option target="maxbipgraph"/>
+		</Unit>
+		<Unit filename="/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/src/CResult.h">
 			<Option target="maxbipgraph"/>
 		</Unit>
 		<Unit filename="/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/CMakeLists.txt">

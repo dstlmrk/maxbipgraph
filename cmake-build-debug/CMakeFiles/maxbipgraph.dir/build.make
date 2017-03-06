@@ -81,43 +81,69 @@ CMakeFiles/maxbipgraph.dir/main.cpp.o.provides: CMakeFiles/maxbipgraph.dir/main.
 CMakeFiles/maxbipgraph.dir/main.cpp.o.provides.build: CMakeFiles/maxbipgraph.dir/main.cpp.o
 
 
-CMakeFiles/maxbipgraph.dir/CGraph.cpp.o: CMakeFiles/maxbipgraph.dir/flags.make
-CMakeFiles/maxbipgraph.dir/CGraph.cpp.o: ../CGraph.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/maxbipgraph.dir/CGraph.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/maxbipgraph.dir/CGraph.cpp.o -c /home/marek/Dropbox/skola/mi/pdp/maxbipgraph/CGraph.cpp
+CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o: CMakeFiles/maxbipgraph.dir/flags.make
+CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o: ../src/CGraph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o -c /home/marek/Dropbox/skola/mi/pdp/maxbipgraph/src/CGraph.cpp
 
-CMakeFiles/maxbipgraph.dir/CGraph.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/maxbipgraph.dir/CGraph.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marek/Dropbox/skola/mi/pdp/maxbipgraph/CGraph.cpp > CMakeFiles/maxbipgraph.dir/CGraph.cpp.i
+CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marek/Dropbox/skola/mi/pdp/maxbipgraph/src/CGraph.cpp > CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.i
 
-CMakeFiles/maxbipgraph.dir/CGraph.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/maxbipgraph.dir/CGraph.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marek/Dropbox/skola/mi/pdp/maxbipgraph/CGraph.cpp -o CMakeFiles/maxbipgraph.dir/CGraph.cpp.s
+CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marek/Dropbox/skola/mi/pdp/maxbipgraph/src/CGraph.cpp -o CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.s
 
-CMakeFiles/maxbipgraph.dir/CGraph.cpp.o.requires:
+CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o.requires:
 
-.PHONY : CMakeFiles/maxbipgraph.dir/CGraph.cpp.o.requires
+.PHONY : CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o.requires
 
-CMakeFiles/maxbipgraph.dir/CGraph.cpp.o.provides: CMakeFiles/maxbipgraph.dir/CGraph.cpp.o.requires
-	$(MAKE) -f CMakeFiles/maxbipgraph.dir/build.make CMakeFiles/maxbipgraph.dir/CGraph.cpp.o.provides.build
-.PHONY : CMakeFiles/maxbipgraph.dir/CGraph.cpp.o.provides
+CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o.provides: CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o.requires
+	$(MAKE) -f CMakeFiles/maxbipgraph.dir/build.make CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o.provides.build
+.PHONY : CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o.provides
 
-CMakeFiles/maxbipgraph.dir/CGraph.cpp.o.provides.build: CMakeFiles/maxbipgraph.dir/CGraph.cpp.o
+CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o.provides.build: CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o
+
+
+CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o: CMakeFiles/maxbipgraph.dir/flags.make
+CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o: ../src/CResult.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o -c /home/marek/Dropbox/skola/mi/pdp/maxbipgraph/src/CResult.cpp
+
+CMakeFiles/maxbipgraph.dir/src/CResult.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/maxbipgraph.dir/src/CResult.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marek/Dropbox/skola/mi/pdp/maxbipgraph/src/CResult.cpp > CMakeFiles/maxbipgraph.dir/src/CResult.cpp.i
+
+CMakeFiles/maxbipgraph.dir/src/CResult.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/maxbipgraph.dir/src/CResult.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marek/Dropbox/skola/mi/pdp/maxbipgraph/src/CResult.cpp -o CMakeFiles/maxbipgraph.dir/src/CResult.cpp.s
+
+CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o.requires:
+
+.PHONY : CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o.requires
+
+CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o.provides: CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o.requires
+	$(MAKE) -f CMakeFiles/maxbipgraph.dir/build.make CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o.provides.build
+.PHONY : CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o.provides
+
+CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o.provides.build: CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o
 
 
 # Object files for target maxbipgraph
 maxbipgraph_OBJECTS = \
 "CMakeFiles/maxbipgraph.dir/main.cpp.o" \
-"CMakeFiles/maxbipgraph.dir/CGraph.cpp.o"
+"CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o" \
+"CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o"
 
 # External object files for target maxbipgraph
 maxbipgraph_EXTERNAL_OBJECTS =
 
 maxbipgraph: CMakeFiles/maxbipgraph.dir/main.cpp.o
-maxbipgraph: CMakeFiles/maxbipgraph.dir/CGraph.cpp.o
+maxbipgraph: CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o
+maxbipgraph: CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o
 maxbipgraph: CMakeFiles/maxbipgraph.dir/build.make
 maxbipgraph: CMakeFiles/maxbipgraph.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable maxbipgraph"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable maxbipgraph"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/maxbipgraph.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -126,7 +152,8 @@ CMakeFiles/maxbipgraph.dir/build: maxbipgraph
 .PHONY : CMakeFiles/maxbipgraph.dir/build
 
 CMakeFiles/maxbipgraph.dir/requires: CMakeFiles/maxbipgraph.dir/main.cpp.o.requires
-CMakeFiles/maxbipgraph.dir/requires: CMakeFiles/maxbipgraph.dir/CGraph.cpp.o.requires
+CMakeFiles/maxbipgraph.dir/requires: CMakeFiles/maxbipgraph.dir/src/CGraph.cpp.o.requires
+CMakeFiles/maxbipgraph.dir/requires: CMakeFiles/maxbipgraph.dir/src/CResult.cpp.o.requires
 
 .PHONY : CMakeFiles/maxbipgraph.dir/requires
 
