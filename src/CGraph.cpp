@@ -3,21 +3,27 @@
 #include <fstream>
 #include <queue>
 #include <stack>
-#include <vector>
 #include "CGraph.h"
 
 using namespace std;
+
+// TODO: pokud vim, kolik mam na zacatku hran, tak pak to nemusim pocitat pokazde, kdyz nejakou odeberu
+// TODO: jen si to musim nekde pamatovat
 
 CGraph::CGraph(int vertices_cnt, vector< vector<bool> > & adjacency_matrix):
         vertices_cnt(vertices_cnt), adjacency_matrix(adjacency_matrix) {}
 
 
 CGraph CGraph::load_graph(const char * path) {
+
     string line;
     int vertices_cnt;
     ifstream file(path);
     vector<vector<bool>> adjacency_matrix;
-//    bool** adjacency_matrix;
+
+
+    cout << "------------" << endl;
+
     if (file.is_open()) {
 
         // load count of vertices
@@ -25,12 +31,9 @@ CGraph CGraph::load_graph(const char * path) {
         vertices_cnt = stoi(line);
 
         // load adjacency matrix
-//        adjacency_matrix = new bool*[vertices_cnt];
         for (int i = 0; i < vertices_cnt; i++) {
             vector<bool> v;
             adjacency_matrix.push_back(v);
-//            adjacency_matrix.push_back(vector<bool>);
-//            adjacency_matrix[i] = new bool[vertices_cnt];
             getline(file, line);
             for (int j = 0; j < line.length(); j++) {
                 adjacency_matrix[i].push_back(line[j] == '1');
@@ -112,24 +115,16 @@ CResult * CGraph::evaluate(vector<vector<bool>> & adjacency_matrix) {
 
 CResult CGraph::get_max_bigraph() {
 
-    CResult * initial_graph = this->evaluate(this->adjacency_matrix);
-    if (initial_graph->is_bigraph) {
+    CResult * graph = this->evaluate(this->adjacency_matrix);
+    if (graph->is_bigraph) {
         cout << "Init graph is bigraph." << endl;
-        return *initial_graph;
+        return *graph;
     }
 
-    cout << "total edges:" << initial_graph->edges_cnt << endl;
+    cout << "total edges: " << graph->edges_cnt << endl;
 
-    cout << "Init graph is not bigraph." << endl;
-    CResult * graph;
     stack <vector<vector<bool>>> s;
     s.push(this->adjacency_matrix);
-
-//    for (int i = 0; i < 4; ++i) {
-//        for (int j = 0; j < 4; ++j) {
-//            cout << this->adjacency_matrix[i][j];
-//        }
-//    } cout << endl;
 
     int k = 0;
     while (!s.empty()) {
@@ -137,28 +132,31 @@ CResult CGraph::get_max_bigraph() {
         adjacency_matrix = s.top();
         s.pop();
 
-        if (best_result != NULL && get_edges_cnt(adjacency_matrix) <= best_result->edges_cnt) {
-            // branch and bound: here is not necessary take away next edges
-            continue;
-        }
+//        if (best_result != NULL && get_edges_cnt(adjacency_matrix) <= best_result->edges_cnt) {
+//            // branch and bound: here is not necessary take away next edges
+//            continue;
+//        }
 
 //         TODO: neco je divne, protoze i s touto podminkou to hleda neumerne dlouho
-        if (best_result != NULL && get_edges_cnt(adjacency_matrix) <= 18) {
-            // branch and bound: here is not necessary take away next edges
-            continue;
-        }
+//        if (best_result != NULL && get_edges_cnt(adjacency_matrix) <= 18) {
+//            // branch and bound: here is not necessary take away next edges
+//            continue;
+//        }
+
 
         // debug print
-//        for (int i = 0; i < 10; ++i) {
-//            for (int j = 0; j < 10; ++j) {
-//                cout << adjacency_matrix[i][j];
-//            } cout << endl;
-//        }
+        for (int i = 0; i < vertices_cnt; ++i) {
+            for (int j = 0; j < vertices_cnt; ++j) {
+                cout << adjacency_matrix[i][j];
+            } //cout << endl;
+        } cout << endl;
+
 
         graph = evaluate(adjacency_matrix);
 
 //        cout << graph->edges_cnt << " " << graph->is_bigraph << endl;
 //        cout << "-------------" << endl;
+
 
         if (graph->is_bigraph) {
             if (best_result == NULL) {
@@ -178,8 +176,8 @@ CResult CGraph::get_max_bigraph() {
 
         // loop over upper triangular matrix where is every edge only once
         int diagonal_index = 0;
-        for (int i = 0; i < vertices_cnt; ++i, ++diagonal_index) {
             for (int j = diagonal_index + 1; j < vertices_cnt; ++j) {
+        for (int i = 0; i < vertices_cnt; ++i, ++diagonal_index) {
                 if (adjacency_matrix[i][j]) {
                     vector<vector<bool>> constricted_adjacency_matrix = adjacency_matrix;
                     constricted_adjacency_matrix[i][j] = false;
