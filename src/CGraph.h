@@ -7,21 +7,23 @@ using namespace std;
 
 class CGraph {
 public:
-    static CGraph load_graph(const char * path);
-    CResult get_max_bigraph();
+    CGraph(int vertices_cnt, int edges_cnt, bool ** adjacency_matrix);
+    ~CGraph();
+    bool is_bipartite_graph();
+    static CGraph * load_graph(const char * path);
+    friend ostream & operator << (ostream & os, const CGraph & graph);
 
-    int vertices_cnt;
-    vector<vector<bool>> adjacency_matrix;
-    // pointer to instance
-    CResult * best_result = NULL;
+//    CResult get_max_bigraph();
+
+    int vertices_cnt, edges_cnt;
+    bool ** adjacency_matrix;
+    bool is_bigraph;
+    short int * vertices_colors;
 
 private:
-    CGraph(int vertices_cnt, vector<vector<bool>> & adjacency_matrix);
-    int get_edges_cnt(vector<vector<bool>> & adjacency_matrix);
-    bool component_is_bigraph(
-            vector<vector<bool>> & adjacency_matrix, int * vertices_colors, int vertex_index
-    );
-    CResult * evaluate(vector<vector<bool>> & adjacency_matrix);
+    static int get_edges_cnt(int vertices_cnt, bool ** adjacency_matrix);
+    bool component_is_bigraph(int vertex_index);
+//    CResult * evaluate(vector<vector<bool>> & adjacency_matrix);
 
 };
 
