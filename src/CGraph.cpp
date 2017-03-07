@@ -8,8 +8,7 @@
 
 using namespace std;
 
-// TODO: pole sousednosti udelat static a predavat si pouze pole vektoru
-// TODO: podle me je lepsi BFS, protoze hned prvni vysledek je ten nejlepsi
+// TODO: boost::dynamic_bitset pro edges nebo vector vice bitsetu pro matici sousednosti
 
 CGraph::CGraph(int vertices_cnt, int edges_cnt, bool * edges, int stack_depth):
         vertices_cnt(vertices_cnt), edges_cnt(edges_cnt), edges(edges), stack_depth(stack_depth) {
@@ -64,7 +63,7 @@ CGraph * CGraph::load_graph(const char * path) {
         edges[i] = true;
     }
 
-    cout << "LOAD: Count of vertices: " << vertices_cnt;
+    cout << "[load] count of vertices: " << vertices_cnt;
     cout << ", edges: " << edges_cnt << endl;
 
     return new CGraph(
@@ -75,14 +74,14 @@ CGraph * CGraph::load_graph(const char * path) {
 }
 
 ostream & operator << (ostream & os, const CGraph & graph) {
-    os << "Colors of graph: ";
+    os << "[result] colors of graph: ";
     for (int i = 0; i < graph.vertices_cnt; ++i) {
         os << graph.vertices_colors[i];
     }
     os << ", number of edges: " << graph.edges_cnt << endl;
     for (int i = 0; i < graph.vertices_cnt; i++) {
         for (int j = 0; j < graph.vertices_cnt; j++) {
-            os << graph.adjacency_matrix[i][j] << " ";
+            os << " " << graph.adjacency_matrix[i][j];
         }
         os << endl;
     }
@@ -201,11 +200,11 @@ CGraph * CGraph::get_max_bigraph(CGraph *init_graph) {
             if (best_graph == NULL) {
                 // first result
                 best_graph = graph;
-                cout << "first solution: " << best_graph->edges_cnt << endl;
+                cout << "[running] first solution: " << best_graph->edges_cnt << endl;
             } else if (graph->edges_cnt > best_graph->edges_cnt) {
                 // better result
                 best_graph = graph;
-                cout << "better solution: " << best_graph->edges_cnt << endl;
+                cout << "[running] better solution: " << best_graph->edges_cnt << endl;
             }
             continue;
         }
@@ -218,11 +217,9 @@ CGraph * CGraph::get_max_bigraph(CGraph *init_graph) {
             }
         }
 
-//        cout << solved_by_others_index << endl;
+        // all before special index is solved by other branches
         for (int i = solved_by_others_index; i < total_edges_cnt; ++i) {
-
             if (graph->edges[i]) {
-
                 bool * reduced_edges = new bool [total_edges_cnt];
                 for (int j = 0; j < total_edges_cnt; ++j) {
                     reduced_edges[j] = graph->edges[j];
@@ -230,27 +227,19 @@ CGraph * CGraph::get_max_bigraph(CGraph *init_graph) {
                 // remove one edge
                 reduced_edges[i] = false;
 
-//                cout << "push: ";
-//                for (int k = 0; k < total_edges_cnt; ++k) {
-//                    cout << reduced_edges[k] << ",";
-//                } cout << endl;
-
-                CGraph *subgraph = new CGraph(
-                    graph->vertices_cnt,
-                    graph->edges_cnt - 1,
-                    reduced_edges,
-                    graph->stack_depth + 1
-                );
-
-                s.push(subgraph);
+                s.push(new CGraph(
+                        graph->vertices_cnt,
+                        graph->edges_cnt - 1,
+                        reduced_edges,
+                        graph->stack_depth + 1
+                ));
 
             }
         }
-
         delete graph;
     }
 
-    cout << "steps counter: " << steps_cnt << endl;
+    cout << "[end] steps counter: " << steps_cnt << endl;
 
     return best_graph;
 }

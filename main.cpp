@@ -24,9 +24,7 @@ int main(int argc, char* argv[]) {
     // get max bigraph from init graph
     CGraph * max_bigraph = CGraph::get_max_bigraph(init_graph);
 
-    cout << "---------------- result ----------------" << endl;
-    cout << * max_bigraph;
-    cout << "----------------------------------------" << endl;
+    cout << * max_bigraph << endl;
 
     // debug print
 //    for (int i = 0; i < max_bigraph->vertices_cnt; ++i) {
