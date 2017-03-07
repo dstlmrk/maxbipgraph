@@ -9,19 +9,20 @@ using namespace std;
 
 class CGraph {
 public:
-    CGraph(int vertices_cnt, int edges_cnt, bool ** adjacency_matrix);
+    CGraph(int vertices_cnt, int edges_cnt, bool * edges, int stack_depth = 0);
     ~CGraph();
     static CGraph * load_graph(const char * path);
     static CGraph * get_max_bigraph(CGraph * init_graph);
     friend ostream & operator << (ostream & os, const CGraph & graph);
 
-    int vertices_cnt, edges_cnt;
+    int vertices_cnt, edges_cnt, stack_depth;
+    bool * edges;
     bool ** adjacency_matrix;
-    bool is_bigraph;
     short int * vertices_colors;
+    static int ** init_adjacency_matrix;
 
 private:
-    static int get_edges_cnt(int vertices_cnt, bool ** adjacency_matrix);
+    bool ** get_adjacency_matrix();
     bool component_is_bigraph(int vertex_index);
     bool is_bipartite_graph();
 };

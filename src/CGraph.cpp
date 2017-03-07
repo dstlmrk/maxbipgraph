@@ -3,21 +3,21 @@
 #include <fstream>
 #include <queue>
 #include <stack>
+#include <iomanip>
 #include "CGraph.h"
 
 using namespace std;
 
+// TODO: pole sousednosti udelat static a predavat si pouze pole vektoru
+// TODO: podle me je lepsi BFS, protoze hned prvni vysledek je ten nejlepsi
 
-CGraph::CGraph(int vertices_cnt, int edges_cnt, bool ** adjacency_matrix):
-        vertices_cnt(vertices_cnt), edges_cnt(edges_cnt), adjacency_matrix(adjacency_matrix) {
+CGraph::CGraph(int vertices_cnt, int edges_cnt, bool * edges, int stack_depth):
+        vertices_cnt(vertices_cnt), edges_cnt(edges_cnt), edges(edges), stack_depth(stack_depth) {
     vertices_colors = new short int[vertices_cnt];
 }
 
 CGraph::~CGraph() {
-    for(int i = 0; i < vertices_cnt; ++i) {
-        delete[] adjacency_matrix[i];
-    }
-    delete[] adjacency_matrix;
+    delete[] edges;
     delete[] vertices_colors;
 }
 
@@ -38,46 +38,40 @@ CGraph * CGraph::load_graph(const char * path) {
     vertices_cnt = stoi(line);
 
     // load adjacency matrix
-    adjacency_matrix = new bool*[vertices_cnt];
-    for (int i = 0; i < vertices_cnt; i++) {
-        adjacency_matrix[i] = new bool[vertices_cnt];
+    CGraph::init_adjacency_matrix = new int*[vertices_cnt];
+    for(int i = 0; i < vertices_cnt; ++i) {
+        CGraph::init_adjacency_matrix[i] = new int[vertices_cnt];
+    }
+    int edge_index = 0, diagonal_index = 0;
+    for(int i = 0; i < vertices_cnt; ++i, ++diagonal_index) {
         getline(file, line);
-        for (int j = 0; j < line.length(); j++) {
-            adjacency_matrix[i][j] = line[j] == '1';
+        for (int j = diagonal_index + 1; j < line.length(); ++j) {
+            int value = 0;
+            if (line[j] == '1') {
+                value = ++edge_index;
+            }
+            CGraph::init_adjacency_matrix[i][j] = value;
+            CGraph::init_adjacency_matrix[j][i] = value;
         }
     }
+
+    int edges_cnt = edge_index;
 
     file.close();
 
-    // debug print
-    cout << "============================" << endl;
-    cout << "Count of vertices = " << vertices_cnt << endl;
-    for (int i = 0; i < vertices_cnt; i++) {
-        for (int j = 0; j < vertices_cnt; j++) {
-            cout << adjacency_matrix[i][j];
-           }
-        cout << endl;
+    bool * edges = new bool [edges_cnt];
+    for (int i = 0; i < edges_cnt; ++i) {
+        edges[i] = true;
     }
-    cout << "============================" << endl;
+
+    cout << "LOAD: Count of vertices: " << vertices_cnt;
+    cout << ", edges: " << edges_cnt << endl;
 
     return new CGraph(
             vertices_cnt,
-            get_edges_cnt(vertices_cnt, adjacency_matrix),
-            adjacency_matrix
+            edges_cnt,
+            edges
     );
-}
-
-int CGraph::get_edges_cnt(int vertices_cnt, bool ** adjacency_matrix) {
-    // get count of edges
-    int diagonal_index = 0, edges_cnt = 0;
-    for (int i = 0; i < vertices_cnt; ++i, ++diagonal_index) {
-        for (int j = diagonal_index + 1; j < vertices_cnt; ++j) {
-            if (adjacency_matrix[i][j]) {
-                ++edges_cnt;
-            }
-        }
-    }
-    return edges_cnt;
 }
 
 ostream & operator << (ostream & os, const CGraph & graph) {
@@ -85,11 +79,46 @@ ostream & operator << (ostream & os, const CGraph & graph) {
     for (int i = 0; i < graph.vertices_cnt; ++i) {
         os << graph.vertices_colors[i];
     }
-    os << ", number of edges: " << graph.edges_cnt;
+    os << ", number of edges: " << graph.edges_cnt << endl;
+    for (int i = 0; i < graph.vertices_cnt; i++) {
+        for (int j = 0; j < graph.vertices_cnt; j++) {
+            os << graph.adjacency_matrix[i][j] << " ";
+        }
+        os << endl;
+    }
+
     return os;
 }
 
+bool **CGraph::get_adjacency_matrix() {
+    // get adjacency matrix from vector of edges and init matrix
+
+    bool **adjacency_matrix = new bool *[vertices_cnt];
+    for (int i = 0; i < vertices_cnt; ++i) {
+        adjacency_matrix[i] = new bool[vertices_cnt];
+        for (int j = 0; j < vertices_cnt; ++j) {
+            adjacency_matrix[i][j] = false;
+        }
+    }
+
+    int diagonal_index = 0;
+    for(int i = 0; i < vertices_cnt; ++i, ++diagonal_index) {
+        for (int j = diagonal_index + 1; j < vertices_cnt; ++j) {
+            int edge_index = CGraph::init_adjacency_matrix[i][j];
+            if (edge_index != 0 && edges[edge_index - 1]) {
+                adjacency_matrix[i][j] = true;
+                adjacency_matrix[j][i] = true;
+            }
+        }
+    }
+
+    return adjacency_matrix;
+}
+
 bool CGraph::is_bipartite_graph() {
+
+    // get adjacency matrix from vector of edges
+    adjacency_matrix = get_adjacency_matrix();
 
     // array with vertices and their colors
     for (int i = 0; i < vertices_cnt; ++i) {
@@ -102,13 +131,11 @@ bool CGraph::is_bipartite_graph() {
         if (vertices_colors[i] == -1) {
             // if vertex is still uncolored I check it and its all neighbours
             if (!component_is_bigraph(i)) {
-                is_bigraph = false;
                 return false;
             }
         }
     }
 
-    is_bigraph = true;
     return true;
 }
 
@@ -149,16 +176,19 @@ CGraph * CGraph::get_max_bigraph(CGraph *init_graph) {
     // stack of pointers
     stack <CGraph*> s;
     s.push(init_graph);
-
     CGraph * best_graph = NULL;
 
     // debug print into file
     // freopen("output.txt","w",stdout);
 
+    int steps_cnt = 0, total_edges_cnt = init_graph->edges_cnt;
+
     while (!s.empty()) {
+
+        steps_cnt++;
+
         CGraph * graph = s.top();
         s.pop();
-
 
         if (best_graph != NULL && best_graph->edges_cnt >= graph->edges_cnt) {
             // branch and bound: here is not necessary take away next edges
@@ -166,56 +196,62 @@ CGraph * CGraph::get_max_bigraph(CGraph *init_graph) {
             continue;
         }
 
-        // debug print
-        for (int i = 0; i < graph->vertices_cnt; ++i) {
-            for (int j = 0; j < graph->vertices_cnt; ++j) {
-                cout << graph->adjacency_matrix[i][j];
-            }
-        } cout << endl;
-
         // save better result
         if (graph->is_bipartite_graph()) {
             if (best_graph == NULL) {
                 // first result
                 best_graph = graph;
+                cout << "first solution: " << best_graph->edges_cnt << endl;
             } else if (graph->edges_cnt > best_graph->edges_cnt) {
                 // better result
                 best_graph = graph;
-                cout << "BETTER RESULT: " << best_graph->edges_cnt << endl;
+                cout << "better solution: " << best_graph->edges_cnt << endl;
             }
             continue;
         }
 
-        // loop over upper triangular matrix where is every edge only once
-        int diagonal_index = 0;
-        for(int i = 0; i < graph->vertices_cnt; ++i, ++diagonal_index) {
-            for (int j = diagonal_index + 1; j < graph->vertices_cnt; ++j) {
-                cout << graph->adjacency_matrix[i][j] << endl;
-                if (graph->adjacency_matrix[i][j]) {
-                    cout << "add" << endl;
-                    // new adjacency matrix
-                    bool ** new_adjacency_matrix = new bool*[graph->vertices_cnt];
-                    for (int k = 0; k < graph->vertices_cnt; k++) {
-                        new_adjacency_matrix[k] = new bool[graph->vertices_cnt];
-                        for (int l = 0; l < graph->vertices_cnt; l++) {
-                            new_adjacency_matrix[k][l] = graph->adjacency_matrix[k][l];
-                        }
-                    }
-
-                    new_adjacency_matrix[i][j] = false;
-                    new_adjacency_matrix[j][i] = false;
-                    CGraph * subgraph = new CGraph(
-                            graph->vertices_cnt,
-                            graph->edges_cnt - 1,
-                            new_adjacency_matrix
-                    );
-
-                    s.push(subgraph);
-                }
+        int solved_by_others_index = 0;
+        for (int i = total_edges_cnt - 1; i >= 0; --i) {
+            if (!graph->edges[i]) {
+                solved_by_others_index = i;
+                break;
             }
         }
+
+//        cout << solved_by_others_index << endl;
+        for (int i = solved_by_others_index; i < total_edges_cnt; ++i) {
+
+            if (graph->edges[i]) {
+
+                bool * reduced_edges = new bool [total_edges_cnt];
+                for (int j = 0; j < total_edges_cnt; ++j) {
+                    reduced_edges[j] = graph->edges[j];
+                }
+                // remove one edge
+                reduced_edges[i] = false;
+
+//                cout << "push: ";
+//                for (int k = 0; k < total_edges_cnt; ++k) {
+//                    cout << reduced_edges[k] << ",";
+//                } cout << endl;
+
+                CGraph *subgraph = new CGraph(
+                    graph->vertices_cnt,
+                    graph->edges_cnt - 1,
+                    reduced_edges,
+                    graph->stack_depth + 1
+                );
+
+                s.push(subgraph);
+
+            }
+        }
+
         delete graph;
     }
 
+    cout << "steps counter: " << steps_cnt << endl;
+
     return best_graph;
 }
+
