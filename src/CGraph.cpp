@@ -9,13 +9,31 @@
 using namespace std;
 
 // TODO: boost::dynamic_bitset pro edges nebo vector vice bitsetu pro matici sousednosti
+// TODO: kdyz neni graf spojity, neni bipartitni a nemusim dal pocitat
+// TODO: kdyz budou dva grafy bipartitni a jedna se o komponenty, tak muzu vetev ustrihnout
 
-CGraph::CGraph(int vertices_cnt, int edges_cnt, bool * edges, int stack_depth):
-        vertices_cnt(vertices_cnt), edges_cnt(edges_cnt), edges(edges), stack_depth(stack_depth) {
+CGraph::CGraph(int vertices_cnt, int edges_cnt, int total_edges_cnt, bool * edges):
+        vertices_cnt(vertices_cnt),
+        edges_cnt(edges_cnt),
+        total_edges_cnt(total_edges_cnt),
+        edges(edges) {
     vertices_colors = new short int[vertices_cnt];
+
+    // get adjacency matrix from vector of edges and init matrix
+    adjacency_matrix = new bool *[vertices_cnt];
+    for (int i = 0; i < vertices_cnt; ++i) {
+        adjacency_matrix[i] = new bool[vertices_cnt];
+        for (int j = 0; j < vertices_cnt; ++j) {
+            adjacency_matrix[i][j] = false;
+        }
+    }
 }
 
 CGraph::~CGraph() {
+    for (int i = 0; i < vertices_cnt ; ++i){
+        delete [] adjacency_matrix[i];
+    }
+    delete[] adjacency_matrix;
     delete[] edges;
     delete[] vertices_colors;
 }
@@ -25,7 +43,6 @@ CGraph * CGraph::load_graph(const char * path) {
     ifstream file(path);
     string line;
     int vertices_cnt;
-    bool ** adjacency_matrix;
 
     if (!file.is_open()) {
         cout << "Unable to open file!" << endl;
@@ -66,11 +83,13 @@ CGraph * CGraph::load_graph(const char * path) {
     cout << "[load] count of vertices: " << vertices_cnt;
     cout << ", edges: " << edges_cnt << endl;
 
-    return new CGraph(
+    CGraph * graph = new CGraph(
             vertices_cnt,
             edges_cnt,
+            edges_cnt, // total (max) edges
             edges
     );
+    return graph;
 }
 
 ostream & operator << (ostream & os, const CGraph & graph) {
@@ -90,16 +109,6 @@ ostream & operator << (ostream & os, const CGraph & graph) {
 }
 
 bool **CGraph::get_adjacency_matrix() {
-    // get adjacency matrix from vector of edges and init matrix
-
-    bool **adjacency_matrix = new bool *[vertices_cnt];
-    for (int i = 0; i < vertices_cnt; ++i) {
-        adjacency_matrix[i] = new bool[vertices_cnt];
-        for (int j = 0; j < vertices_cnt; ++j) {
-            adjacency_matrix[i][j] = false;
-        }
-    }
-
     int diagonal_index = 0;
     for(int i = 0; i < vertices_cnt; ++i, ++diagonal_index) {
         for (int j = diagonal_index + 1; j < vertices_cnt; ++j) {
@@ -110,7 +119,6 @@ bool **CGraph::get_adjacency_matrix() {
             }
         }
     }
-
     return adjacency_matrix;
 }
 
@@ -166,7 +174,7 @@ bool CGraph::component_is_bigraph(int vertex_index) {
     return true;
 }
 
-CGraph * CGraph::get_max_bigraph(CGraph *init_graph) {
+CGraph * CGraph::get_max_bigraph_by_stack(CGraph *init_graph) {
 
     if (init_graph->is_bipartite_graph()) {
         return init_graph;
@@ -180,7 +188,7 @@ CGraph * CGraph::get_max_bigraph(CGraph *init_graph) {
     // debug print into file
     // freopen("output.txt","w",stdout);
 
-    int steps_cnt = 0, total_edges_cnt = init_graph->edges_cnt;
+    int steps_cnt = 0;
 
     while (!s.empty()) {
 
@@ -209,19 +217,15 @@ CGraph * CGraph::get_max_bigraph(CGraph *init_graph) {
             continue;
         }
 
-        int solved_by_others_index = 0;
-        for (int i = total_edges_cnt - 1; i >= 0; --i) {
-            if (!graph->edges[i]) {
-                solved_by_others_index = i;
-                break;
-            }
-        }
+
+        int solved_by_others_index = graph->get_solved_by_others_index();
 
         // all before special index is solved by other branches
-        for (int i = solved_by_others_index; i < total_edges_cnt; ++i) {
+        for (int i = solved_by_others_index; i < graph->total_edges_cnt; ++i) {
             if (graph->edges[i]) {
-                bool * reduced_edges = new bool [total_edges_cnt];
-                for (int j = 0; j < total_edges_cnt; ++j) {
+                // copy of array
+                bool * reduced_edges = new bool [graph->total_edges_cnt];
+                for (int j = 0; j < graph->total_edges_cnt; ++j) {
                     reduced_edges[j] = graph->edges[j];
                 }
                 // remove one edge
@@ -230,8 +234,8 @@ CGraph * CGraph::get_max_bigraph(CGraph *init_graph) {
                 s.push(new CGraph(
                         graph->vertices_cnt,
                         graph->edges_cnt - 1,
-                        reduced_edges,
-                        graph->stack_depth + 1
+                        graph->total_edges_cnt,
+                        reduced_edges
                 ));
 
             }
@@ -242,5 +246,80 @@ CGraph * CGraph::get_max_bigraph(CGraph *init_graph) {
     cout << "[end] steps counter: " << steps_cnt << endl;
 
     return best_graph;
+}
+
+CGraph * CGraph::get_max_bigraph_by_recursion(CGraph * init_graph) {
+
+    if (init_graph->is_bipartite_graph()) {
+        return init_graph;
+    }
+
+    CGraph::_get_max_bigraph_by_recursion(init_graph);
+
+    if (init_graph != CGraph::max_bigraph) {
+        delete init_graph;
+    }
+
+    return CGraph::max_bigraph;
+}
+
+void CGraph::_get_max_bigraph_by_recursion(CGraph * graph) {
+
+    if (CGraph::max_bigraph != NULL) {
+        if (graph->edges_cnt <= CGraph::max_bigraph->edges_cnt) {
+            // branch and bound: here is not necessary take away next edges
+            return;
+        }
+    }
+
+    if (graph->is_bipartite_graph()) {
+        if (CGraph::max_bigraph == NULL) {
+            CGraph::max_bigraph = graph;
+        } else if (CGraph::max_bigraph->edges_cnt < graph->edges_cnt) {
+            delete CGraph::max_bigraph;
+            CGraph::max_bigraph = graph;
+        } else {
+            return;
+        }
+    }
+
+
+    int solved_by_others_index = graph->get_solved_by_others_index();
+
+    // all before special index is solved by other branches
+    for (int i = solved_by_others_index; i < graph->total_edges_cnt; ++i) {
+        if (graph->edges[i]) {
+            // copy of array
+            bool * reduced_edges = new bool [graph->total_edges_cnt];
+            for (int j = 0; j < graph->total_edges_cnt; ++j) {
+                reduced_edges[j] = graph->edges[j];
+            }
+            // remove one edge
+            reduced_edges[i] = false;
+
+            CGraph * reduced_graph = new CGraph(
+                    graph->vertices_cnt,
+                    graph->edges_cnt - 1,
+                    graph->total_edges_cnt,
+                    reduced_edges
+            );
+
+            CGraph::_get_max_bigraph_by_recursion(reduced_graph);
+            if (reduced_graph != CGraph::max_bigraph) {
+                delete reduced_graph;
+            }
+        }
+    }
+
+}
+
+int CGraph::get_solved_by_others_index() {
+    // return special index that points on last occurrence of zero
+    for (int i = total_edges_cnt - 1; i >= 0; --i) {
+        if (!edges[i]) {
+            return i;
+        }
+    }
+    return 0;
 }
 
