@@ -211,6 +211,7 @@ CGraph * CGraph::get_max_bigraph_by_stack(CGraph *init_graph) {
                 cout << "[running] first solution: " << best_graph->edges_cnt << endl;
             } else if (graph->edges_cnt > best_graph->edges_cnt) {
                 // better result
+                delete best_graph;
                 best_graph = graph;
                 cout << "[running] better solution: " << best_graph->edges_cnt << endl;
             }
