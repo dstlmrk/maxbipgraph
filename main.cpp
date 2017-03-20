@@ -1,6 +1,5 @@
 #include <iostream>
 #include "src/CGraph.h"
-//#include <omp.h>
 
 using namespace std;
 
@@ -17,9 +16,8 @@ int main(int argc, char* argv[]) {
         // return 1;
 //        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/generator/graf.out";
 //        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/data/graph4.txt";
-        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/data/graph10_5.txt";
-//        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/data/graph6_4.txt";
-//        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/data/graph5_3.txt";
+//        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/data/graph10_5.txt";
+        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/data/graph18_4.txt";
     }
 
     // load init graph
@@ -28,7 +26,8 @@ int main(int argc, char* argv[]) {
 
     // get max bigraph from init graph
 //    CGraph * max_bigraph = CGraph::get_max_bigraph_by_stack(init_graph);
-    CGraph * max_bigraph = CGraph::get_max_bigraph_by_recursion(init_graph);
+//    CGraph * max_bigraph = CGraph::get_max_bigraph_by_recursion(init_graph);
+    CGraph * max_bigraph = CGraph::get_max_bigraph_by_parallel_recursion(init_graph);
 
     cout << * max_bigraph << endl;
 

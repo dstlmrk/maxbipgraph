@@ -16,6 +16,7 @@ public:
     static CGraph * load_graph(const char * path);
     static CGraph * get_max_bigraph_by_stack(CGraph * init_graph);
     static CGraph * get_max_bigraph_by_recursion(CGraph * init_graph);
+    static CGraph * get_max_bigraph_by_parallel_recursion(CGraph * init_graph);
     friend ostream & operator << (ostream & os, const CGraph & graph);
 
     int vertices_cnt, edges_cnt, total_edges_cnt;
@@ -28,6 +29,7 @@ public:
 
 private:
     static void _get_max_bigraph_by_recursion(CGraph * graph);
+    static void _get_max_bigraph_by_parallel_recursion(CGraph * graph);
     int get_solved_by_others_index();
     bool ** get_adjacency_matrix();
     bool component_is_bigraph(int vertex_index);

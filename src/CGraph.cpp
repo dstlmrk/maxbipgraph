@@ -4,6 +4,7 @@
 #include <queue>
 #include <stack>
 #include <iomanip>
+#include <omp.h>
 #include "CGraph.h"
 
 using namespace std;
@@ -322,5 +323,91 @@ int CGraph::get_solved_by_others_index() {
         }
     }
     return 0;
+}
+
+CGraph *CGraph::get_max_bigraph_by_parallel_recursion(CGraph * init_graph) {
+
+    if (init_graph->is_bipartite_graph()) {
+        return init_graph;
+    }
+
+    // because of this directive I can use all threads
+    #pragma omp parallel
+    {
+        #pragma omp single nowait
+        {
+            CGraph::_get_max_bigraph_by_parallel_recursion(init_graph);
+        }
+    }
+
+    if (init_graph != CGraph::max_bigraph) {
+        delete init_graph;
+    }
+
+    return CGraph::max_bigraph;
+}
+
+void CGraph::_get_max_bigraph_by_parallel_recursion(CGraph * graph) {
+
+    if (CGraph::max_bigraph != NULL) {
+        if (graph->edges_cnt <= CGraph::max_bigraph->edges_cnt) {
+            // branch and bound: here is not necessary take away next edges
+            return;
+        }
+    }
+
+    if (graph->is_bipartite_graph()) {
+        if (CGraph::max_bigraph == NULL) {
+            #pragma omp critical
+            {
+                if (CGraph::max_bigraph == NULL) {
+                    CGraph::max_bigraph = graph;
+                }
+            }
+        } else if (CGraph::max_bigraph->edges_cnt < graph->edges_cnt) {
+            #pragma omp critical
+            {
+                if (CGraph::max_bigraph->edges_cnt < graph->edges_cnt) {
+                    delete CGraph::max_bigraph;
+                    CGraph::max_bigraph = graph;
+                }
+            }
+        } else {
+            return;
+        }
+    }
+
+    int solved_by_others_index = graph->get_solved_by_others_index();
+
+    // all before special index is solved by other branches
+    for (int i = solved_by_others_index; i < graph->total_edges_cnt; ++i) {
+        if (graph->edges[i]) {
+            #pragma omp task untied
+            {
+//                cout << "task(" << i << "): " << omp_get_thread_num() << endl;
+                // copy of array
+                bool *reduced_edges = new bool[graph->total_edges_cnt];
+                for (int j = 0; j < graph->total_edges_cnt; ++j) {
+                    reduced_edges[j] = graph->edges[j];
+                }
+                // remove one edge
+                reduced_edges[i] = false;
+
+                CGraph *reduced_graph = new CGraph(
+                        graph->vertices_cnt,
+                        graph->edges_cnt - 1,
+                        graph->total_edges_cnt,
+                        reduced_edges
+                );
+
+                CGraph::_get_max_bigraph_by_parallel_recursion(reduced_graph);
+
+                if (reduced_graph != CGraph::max_bigraph) {
+                    delete reduced_graph;
+                }
+            }
+        }
+    }
+    #pragma omp taskwait
 }
 
