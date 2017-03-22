@@ -325,7 +325,7 @@ int CGraph::get_solved_by_others_index() {
     return 0;
 }
 
-CGraph *CGraph::get_max_bigraph_by_parallel_recursion(CGraph * init_graph) {
+CGraph * CGraph::get_max_bigraph_by_parallel_recursion(CGraph * init_graph) {
 
     if (init_graph->is_bipartite_graph()) {
         return init_graph;
@@ -382,9 +382,9 @@ void CGraph::_get_max_bigraph_by_parallel_recursion(CGraph * graph) {
     // all before special index is solved by other branches
     for (int i = solved_by_others_index; i < graph->total_edges_cnt; ++i) {
         if (graph->edges[i]) {
-            #pragma omp task untied
+            // #pragma omp task untied
+            #pragma omp task
             {
-//                cout << "task(" << i << "): " << omp_get_thread_num() << endl;
                 // copy of array
                 bool *reduced_edges = new bool[graph->total_edges_cnt];
                 for (int j = 0; j < graph->total_edges_cnt; ++j) {
