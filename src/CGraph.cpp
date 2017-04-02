@@ -9,6 +9,8 @@
 
 using namespace std;
 
+int MAX_BATCH_SIZE = 100000;
+
 // TODO: boost::dynamic_bitset pro edges nebo vector vice bitsetu pro matici sousednosti
 // TODO: kdyz neni graf spojity, neni bipartitni a nemusim dal pocitat
 // TODO: kdyz budou dva grafy bipartitni a jedna se o komponenty, tak muzu vetev ustrihnout
@@ -175,7 +177,7 @@ bool CGraph::component_is_bigraph(int vertex_index) {
     return true;
 }
 
-CGraph * CGraph::get_max_bigraph_by_stack(CGraph *init_graph) {
+CGraph * CGraph::get_max_bigraph_by_stack(CGraph * init_graph) {
 
     if (init_graph->is_bipartite_graph()) {
         return init_graph;
@@ -185,9 +187,6 @@ CGraph * CGraph::get_max_bigraph_by_stack(CGraph *init_graph) {
     stack <CGraph*> s;
     s.push(init_graph);
     CGraph * best_graph = NULL;
-
-    // debug print into file
-    // freopen("output.txt","w",stdout);
 
     int steps_cnt = 0;
 
@@ -249,6 +248,126 @@ CGraph * CGraph::get_max_bigraph_by_stack(CGraph *init_graph) {
 
     return best_graph;
 }
+
+CGraph * CGraph::get_max_bigraph_by_parallel_stack(CGraph * init_graph) {
+
+    if (init_graph->is_bipartite_graph()) {
+        return init_graph;
+    }
+
+    cout << "[running] parallel processing" << endl;
+
+    // array of pointers for is_bigraph alg
+    // TODO: delete this array
+    CGraph ** nodes = new CGraph*[MAX_BATCH_SIZE];
+
+    // stack of pointers for DFS
+    stack <CGraph*> stack;
+    stack.push(init_graph);
+
+    // if DFS finished all nodes in the graph
+    bool dfs_completed = false;
+
+    // temporary var for the best result of alg
+    CGraph * best_graph = NULL;
+
+    int steps_cnt = 0, batch_size;
+
+    while(!dfs_completed) {
+
+        cout << "nacitam" << endl;
+
+        batch_size = 0;
+
+        // load batch of nodes by DFS
+
+        for (int b = 0; b < MAX_BATCH_SIZE; ++b) {
+
+            if (stack.empty()) {
+                dfs_completed = true;
+                break;
+            }
+
+            // next graph from DFS alg
+            CGraph * graph = stack.top();
+            stack.pop();
+
+            if (best_graph != NULL && best_graph->edges_cnt >= graph->edges_cnt) {
+                // branch and bound: here is not necessary take away next edges
+                delete graph;
+                continue;
+            }
+
+            int solved_by_others_index = graph->get_solved_by_others_index();
+            // everything before special index is solved by other branches
+            for (int i = solved_by_others_index; i < graph->total_edges_cnt; ++i) {
+                if (graph->edges[i]) {
+                    // copy of array
+                    bool *reduced_edges = new bool[graph->total_edges_cnt];
+                    for (int j = 0; j < graph->total_edges_cnt; ++j) {
+                        reduced_edges[j] = graph->edges[j];
+                    }
+                    // remove one edge
+                    reduced_edges[i] = false;
+
+                    CGraph *reduced_graph = new CGraph(
+                            graph->vertices_cnt,
+                            graph->edges_cnt - 1,
+                            graph->total_edges_cnt,
+                            reduced_edges
+                    );
+
+                    stack.push(reduced_graph);
+                }
+            }
+            // only if all children are added in stack
+            nodes[batch_size] = graph;
+            ++batch_size;
+        }
+
+        cout << "[running] loaded a batch with " << batch_size << " nodes" << endl;
+
+        #pragma omp parallel for
+        for (int i = 0; i < batch_size; ++i) {
+
+            steps_cnt++;
+            CGraph * graph = nodes[i];
+
+            // save better result
+            if (graph->is_bipartite_graph()) {
+                if (best_graph == NULL) {
+                    #pragma omp critical
+                    {
+                        if (best_graph == NULL) {
+                            // first result
+                            best_graph = graph;
+                            cout << "[running] first solution: " << best_graph->edges_cnt << endl;
+                        }
+                    }
+                } else if (graph->edges_cnt > best_graph->edges_cnt) {
+                    #pragma omp critical
+                    {
+                        if (graph->edges_cnt > best_graph->edges_cnt) {
+                            // better result
+                            delete best_graph;
+                            best_graph = graph;
+                            cout << "[running] better solution: " << best_graph->edges_cnt << endl;
+                        }
+                    }
+                }
+            }
+
+            if (graph != best_graph) {
+                delete graph;
+            }
+        }
+    }
+
+    cout << "[end] steps counter: " << steps_cnt << endl;
+
+    return best_graph;
+}
+
 
 CGraph * CGraph::get_max_bigraph_by_recursion(CGraph * init_graph) {
 

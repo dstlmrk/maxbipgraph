@@ -15,6 +15,7 @@ public:
     ~CGraph();
     static CGraph * load_graph(const char * path);
     static CGraph * get_max_bigraph_by_stack(CGraph * init_graph);
+    static CGraph * get_max_bigraph_by_parallel_stack(CGraph *init_graph);
     static CGraph * get_max_bigraph_by_recursion(CGraph * init_graph);
     static CGraph * get_max_bigraph_by_parallel_recursion(CGraph * init_graph);
     friend ostream & operator << (ostream & os, const CGraph & graph);

@@ -12,22 +12,25 @@ int main(int argc, char* argv[]) {
 
     // load arguments
     if (argc < 2) {
-        // std::cerr << "Usage: " << argv[0] << " file_path" << std::endl;
-        // return 1;
+         std::cerr << "Usage: " << argv[0] << " file_path" << std::endl;
+         return 1;
 //        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/generator/graf.out";
 //        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/data/graph4.txt";
 //        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/data/graph10_5.txt";
-        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/data/graph18_4.txt";
+//        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/data/graph14_5.txt";
+//        argv[1] = (char *) "/home/marek/Dropbox/skola/mi/pdp/maxbipgraph/data/graph18_4.txt";
     }
 
     // load init graph
     CGraph * init_graph = CGraph::load_graph(argv[1]);
+
     int vertices_cnt = init_graph->vertices_cnt;
 
     // get max bigraph from init graph
-//    CGraph * max_bigraph = CGraph::get_max_bigraph_by_stack(init_graph);
+    CGraph * max_bigraph = CGraph::get_max_bigraph_by_stack(init_graph);
+//    CGraph * max_bigraph = CGraph::get_max_bigraph_by_parallel_stack(init_graph);
 //    CGraph * max_bigraph = CGraph::get_max_bigraph_by_recursion(init_graph);
-    CGraph * max_bigraph = CGraph::get_max_bigraph_by_parallel_recursion(init_graph);
+//    CGraph * max_bigraph = CGraph::get_max_bigraph_by_parallel_recursion(init_graph);
 
     cout << * max_bigraph << endl;
 
