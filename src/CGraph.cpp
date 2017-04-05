@@ -250,6 +250,8 @@ CGraph * CGraph::get_max_bigraph_by_stack(CGraph * init_graph) {
 }
 
 CGraph * CGraph::get_max_bigraph_by_parallel_stack(CGraph * init_graph) {
+    // TODO: better way is start from empty array with no edges
+    // TODO: because I can sooner find solution and then cut branches
 
     if (init_graph->is_bipartite_graph()) {
         return init_graph;
@@ -258,7 +260,6 @@ CGraph * CGraph::get_max_bigraph_by_parallel_stack(CGraph * init_graph) {
     cout << "[running] parallel processing" << endl;
 
     // array of pointers for is_bigraph alg
-    // TODO: delete this array
     CGraph ** nodes = new CGraph*[MAX_BATCH_SIZE];
 
     // stack of pointers for DFS
@@ -275,12 +276,9 @@ CGraph * CGraph::get_max_bigraph_by_parallel_stack(CGraph * init_graph) {
 
     while(!dfs_completed) {
 
-        cout << "nacitam" << endl;
-
         batch_size = 0;
 
         // load batch of nodes by DFS
-
         for (int b = 0; b < MAX_BATCH_SIZE; ++b) {
 
             if (stack.empty()) {
@@ -364,7 +362,7 @@ CGraph * CGraph::get_max_bigraph_by_parallel_stack(CGraph * init_graph) {
     }
 
     cout << "[end] steps counter: " << steps_cnt << endl;
-
+    delete [] nodes;
     return best_graph;
 }
 
