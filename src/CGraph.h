@@ -18,6 +18,7 @@ public:
     static CGraph * get_max_bigraph_by_parallel_stack(CGraph *init_graph);
     static CGraph * get_max_bigraph_by_recursion(CGraph * init_graph);
     static CGraph * get_max_bigraph_by_parallel_recursion(CGraph * init_graph);
+    static CGraph * get_max_bigraph_by_cluster(CGraph * init_graph);
     friend ostream & operator << (ostream & os, const CGraph & graph);
 
     int vertices_cnt, edges_cnt, total_edges_cnt;
@@ -35,6 +36,8 @@ private:
     bool ** get_adjacency_matrix();
     bool component_is_bigraph(int vertex_index);
     bool is_bipartite_graph();
+    static CGraph * recover_graph(vector<int> graph_serialization, int vertices_cnt);
+    static vector<int> serialize_graph(CGraph * graph);
 };
 
 

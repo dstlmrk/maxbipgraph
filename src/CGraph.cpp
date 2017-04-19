@@ -5,7 +5,11 @@
 #include <stack>
 #include <iomanip>
 #include <omp.h>
+#include "mpi.h"
 #include "CGraph.h"
+
+#define COMPLETED 999
+#define UNCOMPLETED 998
 
 using namespace std;
 
@@ -366,7 +370,6 @@ CGraph * CGraph::get_max_bigraph_by_parallel_stack(CGraph * init_graph) {
     return best_graph;
 }
 
-
 CGraph * CGraph::get_max_bigraph_by_recursion(CGraph * init_graph) {
 
     if (init_graph->is_bipartite_graph()) {
@@ -528,3 +531,182 @@ void CGraph::_get_max_bigraph_by_parallel_recursion(CGraph * graph) {
     #pragma omp taskwait
 }
 
+/** MPI solution */
+CGraph * CGraph::get_max_bigraph_by_cluster(CGraph * init_graph) {
+
+    int my_rank, p, master=0, tag=0, source, length, m=100;
+    MPI_Status status;
+
+    /* find out process rank */
+    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+
+    /* find out number of processes */
+    MPI_Comm_size(MPI_COMM_WORLD, &p);
+
+    int total_edges_cnt = init_graph->total_edges_cnt;
+    int vertices_cnt = init_graph->vertices_cnt;
+
+    CGraph * max_bigraph = NULL, * max_sub_bigraph;
+
+    std::vector<int> graph_serialization;
+    std::vector<int> graph_result;
+
+    if (my_rank == 0) {
+        // master's work
+
+        if (init_graph->is_bipartite_graph()) {
+            cout << "[master] init graph is bigraph" << endl;
+            max_bigraph = init_graph;
+        } else {
+
+            // all children
+            queue<CGraph *> queue;
+            CGraph *graph = init_graph;
+
+            int solved_by_others_index = graph->get_solved_by_others_index();
+            // everything before special index is solved by other branches
+            for (int i = solved_by_others_index; i < graph->total_edges_cnt; ++i) {
+                if (graph->edges[i]) {
+                    // copy of array
+                    bool *reduced_edges = new bool[graph->total_edges_cnt];
+                    for (int j = 0; j < graph->total_edges_cnt; ++j) {
+                        reduced_edges[j] = graph->edges[j];
+                    }
+                    // remove one edge
+                    reduced_edges[i] = false;
+
+                    CGraph *reduced_graph = new CGraph(
+                            graph->vertices_cnt,
+                            graph->edges_cnt - 1,
+                            graph->total_edges_cnt,
+                            reduced_edges
+                    );
+
+                    queue.push(reduced_graph);
+                }
+            }
+
+            while(!queue.empty()) {
+
+                for (source = 1; source < p; source++) {
+
+                    if (queue.empty()) {
+                        break;
+                    }
+
+                    graph = queue.front();
+                    queue.pop();
+
+                    graph_serialization = CGraph::serialize_graph(graph);
+
+                    // send all edges at once
+                    MPI_Send(graph_serialization.data(), total_edges_cnt, MPI_INT, source, tag, MPI_COMM_WORLD);
+
+                    graph_result.resize((unsigned long) total_edges_cnt);
+                    MPI_Recv(graph_result.data(), total_edges_cnt, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
+
+                    max_sub_bigraph = recover_graph(graph_result, vertices_cnt);
+
+                    // it is necessary because of ...
+                    max_sub_bigraph->is_bipartite_graph();
+
+                    if (max_bigraph == NULL) {
+                        max_bigraph = max_sub_bigraph;
+                        cout << "[master] first solution: " << max_bigraph->edges_cnt << endl;
+                    } else if (max_sub_bigraph->edges_cnt > max_bigraph->edges_cnt) {
+                        max_bigraph = max_sub_bigraph;
+                        cout << "[master] better solution: " << max_bigraph->edges_cnt << endl;
+                    }
+                }
+            }
+        }
+
+        // send signal to finish
+        for (source=1; source<p; source++) {
+            graph_serialization.clear();
+            graph_serialization.push_back(COMPLETED);
+            MPI_Send(graph_serialization.data(), total_edges_cnt, MPI_INT, source, tag, MPI_COMM_WORLD);
+        }
+
+        for (source=1; source<p; source++) {
+            graph_result.resize((unsigned long) total_edges_cnt);
+            MPI_Recv(graph_result.data(), total_edges_cnt, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
+            // TODO: kdybych zpet neposilal UNCOPLETE, mel bych tu porovnavat, jestli jsem nedostal lepsi vysledek
+        }
+
+    } else {
+        // slave's work
+
+        bool end = false;
+
+        while(!end) {
+            // make space for all edges
+            graph_serialization.resize((unsigned long) total_edges_cnt);
+            // receive edges
+            MPI_Recv(graph_serialization.data(), total_edges_cnt, MPI_INT, master, tag, MPI_COMM_WORLD, &status);
+
+            if(graph_serialization[0]==COMPLETED) {
+
+                // all slaves will be closed
+                end = true;
+
+                // TODO: tady asi budu jeste posilat jednou to nejlepsi reseni
+                graph_result.clear();
+                graph_result.push_back(UNCOMPLETED);
+                // send all edges at once
+                MPI_Send(graph_result.data(), total_edges_cnt, MPI_INT, master, tag, MPI_COMM_WORLD);
+
+            } else {
+//                cout << "[slave] graph recovering" << endl;
+                CGraph * new_init_graph = recover_graph(graph_serialization, vertices_cnt);
+
+                if (new_init_graph->is_bipartite_graph()) {
+                    cout << "[slave] init graph is bigraph" << endl;
+                    return init_graph;
+                }
+                CGraph::get_max_bigraph_by_parallel_recursion(new_init_graph);
+                graph_result = CGraph::serialize_graph(CGraph::max_bigraph);
+                // send all edges at once
+                MPI_Send(graph_result.data(), total_edges_cnt, MPI_INT, master, tag, MPI_COMM_WORLD);
+            }
+        }
+    }
+
+    if (my_rank != 0) {
+        cout << "[slave] done" << endl;
+        return NULL;
+    } else {
+        cout << "[master] done" << endl;
+        return max_bigraph;
+    }
+}
+
+
+
+CGraph * CGraph::recover_graph(vector<int> graph_serialization, int vertices_cnt) {
+    int edges_cnt = 0;
+    bool * edges = new bool [graph_serialization.size()];
+    for (int i = 0; i < graph_serialization.size(); ++i) {
+        if (graph_serialization[i] == 1) {
+            edges[i] = true;
+            ++edges_cnt;
+        } else {
+            edges[i] = false;
+        }
+    }
+    CGraph * graph = new CGraph(
+            vertices_cnt,
+            edges_cnt,
+            (unsigned int) graph_serialization.size(),
+            edges
+    );
+    return graph;
+}
+
+vector<int> CGraph::serialize_graph(CGraph *graph) {
+    vector<int> serialized_graph;
+    for (int i = 0; i < graph->total_edges_cnt; ++i) {
+        serialized_graph.push_back(int(graph->edges[i]));
+    }
+    return serialized_graph;
+}
