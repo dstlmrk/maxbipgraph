@@ -1,8 +1,6 @@
 #include "mpi.h"
-#include <stdio.h>
-#include <string.h>
-#include <iostream>
 #include "src/CGraph.h"
+#include <stdlib.h>
 
 using namespace std;
 
@@ -14,6 +12,7 @@ CGraph * CGraph::max_bigraph = NULL;
 int main(int argc, char* argv[]) {
 
     int my_rank, vertices_cnt;
+    double t1, t2;
     CGraph * max_bigraph, * init_graph;
 
     /* start up MPI */
@@ -22,11 +21,14 @@ int main(int argc, char* argv[]) {
     /* find out process rank */
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
+    /* time measuring - start */
+    t1 = MPI_Wtime();
+
     // master
     if (my_rank == 0) {
         // load arguments
         if (argc < 3) {
-            std::cerr << "Usage: " << argv[0] << " seq/par file_path " << std::endl;
+            std::cerr << "Usage: " << argv[0] << "num_threads file_path " << std::endl;
             return 1;
         }
     }
@@ -35,18 +37,7 @@ int main(int argc, char* argv[]) {
     init_graph = CGraph::load_graph(argv[2]);
     vertices_cnt = init_graph->vertices_cnt;
 
-    // get max bigraph from init graph
-    if (strcmp(argv[1], "seq") == 0) {
-        max_bigraph = CGraph::get_max_bigraph_by_stack(init_graph);
-    } else if (strcmp(argv[1], "par") == 0) {
-//         max_bigraph = CGraph::get_max_bigraph_by_parallel_stack(init_graph);
-        max_bigraph = CGraph::get_max_bigraph_by_cluster(init_graph);
-    }
-//    CGraph * max_bigraph = CGraph::get_max_bigraph_by_recursion(init_graph);
-//    CGraph * max_bigraph = CGraph::get_max_bigraph_by_parallel_recursion(init_graph);
-
-    /* shut down MPI */
-    MPI_Finalize();
+    max_bigraph = CGraph::get_max_bigraph_by_cluster(init_graph, atoi(argv[1]));
 
     if (my_rank == 0) {
 
@@ -61,6 +52,16 @@ int main(int argc, char* argv[]) {
         }
         delete[] CGraph::init_adjacency_matrix;
     }
+
+    /* time measuring - stop */
+    t2 = MPI_Wtime();
+
+    if (my_rank == 0) {
+        printf("%d: Elapsed time is %f.\n", my_rank, t2 - t1);
+    }
+
+    /* shut down MPI */
+    MPI_Finalize();
 
     return 0;
 }

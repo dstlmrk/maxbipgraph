@@ -445,14 +445,17 @@ int CGraph::get_solved_by_others_index() {
     return 0;
 }
 
-CGraph * CGraph::get_max_bigraph_by_parallel_recursion(CGraph * init_graph) {
+CGraph * CGraph::get_max_bigraph_by_parallel_recursion(CGraph * init_graph, int num_threads) {
 
     if (init_graph->is_bipartite_graph()) {
         return init_graph;
     }
 
+    omp_set_dynamic(0);     // Explicitly disable dynamic teams
+    omp_set_num_threads(num_threads); // Use 4 threads for all consecutive parallel regions
+
     // because of this directive I can use all threads
-    #pragma omp parallel
+    #pragma omp parallel num_threads(num_threads)
     {
         #pragma omp single nowait
         {
@@ -532,7 +535,7 @@ void CGraph::_get_max_bigraph_by_parallel_recursion(CGraph * graph) {
 }
 
 /** MPI solution */
-CGraph * CGraph::get_max_bigraph_by_cluster(CGraph * init_graph) {
+CGraph * CGraph::get_max_bigraph_by_cluster(CGraph *init_graph, int num_threads) {
 
     int my_rank, p, master=0, tag=0, source, length, m=100;
     MPI_Status status;
@@ -664,7 +667,7 @@ CGraph * CGraph::get_max_bigraph_by_cluster(CGraph * init_graph) {
                     cout << "[slave] init graph is bigraph" << endl;
                     return init_graph;
                 }
-                CGraph::get_max_bigraph_by_parallel_recursion(new_init_graph);
+                CGraph::get_max_bigraph_by_parallel_recursion(new_init_graph, num_threads);
                 graph_result = CGraph::serialize_graph(CGraph::max_bigraph);
                 // send all edges at once
                 MPI_Send(graph_result.data(), total_edges_cnt, MPI_INT, master, tag, MPI_COMM_WORLD);
