@@ -1,6 +1,5 @@
 #include "mpi.h"
 #include "src/CGraph.h"
-#include <stdlib.h>
 
 using namespace std;
 
@@ -28,20 +27,20 @@ int main(int argc, char* argv[]) {
     if (my_rank == 0) {
         // load arguments
         if (argc < 3) {
-            std::cerr << "Usage: " << argv[0] << "num_threads file_path " << std::endl;
+            std::cerr << "Usage: " << argv[0] << " num_threads file_path " << std::endl;
             return 1;
         }
     }
+
+    int num_threads = atoi(argv[1]);
 
     // load init graph
     init_graph = CGraph::load_graph(argv[2]);
     vertices_cnt = init_graph->vertices_cnt;
 
-    max_bigraph = CGraph::get_max_bigraph_by_cluster(init_graph, atoi(argv[1]));
+    max_bigraph = CGraph::get_max_bigraph_by_cluster(init_graph, num_threads);
 
     if (my_rank == 0) {
-
-        cout << "============================================================================" << endl;
         cout << * max_bigraph << endl;
         // init_graph is deleted by get_max_bigraph()
         // static variable CGraph::max_bigraph is deleted here
@@ -57,7 +56,7 @@ int main(int argc, char* argv[]) {
     t2 = MPI_Wtime();
 
     if (my_rank == 0) {
-        printf("%d: Elapsed time is %f.\n", my_rank, t2 - t1);
+        printf("[master] Elapsed time is %f seconds\n", t2 - t1);
     }
 
     /* shut down MPI */

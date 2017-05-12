@@ -6,18 +6,15 @@
 #include <sstream>
 #include <bitset>
 
-
 using namespace std;
+
 
 class CGraph {
 public:
     CGraph(int vertices_cnt, int edges_cnt, int total_edges_cnt, bool * edges);
     ~CGraph();
     static CGraph * load_graph(const char * path);
-    static CGraph * get_max_bigraph_by_stack(CGraph * init_graph);
-    static CGraph * get_max_bigraph_by_parallel_stack(CGraph *init_graph);
-    static CGraph * get_max_bigraph_by_recursion(CGraph * init_graph);
-    static CGraph * get_max_bigraph_by_parallel_recursion(CGraph * init_graph, int num_threads);
+    static CGraph * get_max_bigraph(CGraph * init_graph, int num_threads);
     static CGraph *get_max_bigraph_by_cluster(CGraph *init_graph, int num_threads);
     friend ostream & operator << (ostream & os, const CGraph & graph);
 
@@ -30,8 +27,7 @@ public:
     static CGraph * max_bigraph;
 
 private:
-    static void _get_max_bigraph_by_recursion(CGraph * graph);
-    static void _get_max_bigraph_by_parallel_recursion(CGraph * graph);
+    static void _get_max_bigraph(CGraph * graph);
     int get_solved_by_others_index();
     bool ** get_adjacency_matrix();
     bool component_is_bigraph(int vertex_index);
